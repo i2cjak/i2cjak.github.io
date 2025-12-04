@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KiCad Image to Footprint Converter</title>
+    <meta name="description" content="Convert images to KiCad silkscreen footprints with dithering algorithms">
+    <meta name="author" content="i2cjak">
     <style>
         * {
             box-sizing: border-box;
@@ -24,16 +26,46 @@
             margin: 0 auto;
         }
 
-        h1 {
+        header {
             text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
             margin-bottom: 10px;
             color: #00d4ff;
         }
 
         .subtitle {
-            text-align: center;
             color: #888;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 10px;
+        }
+
+        .social-links a {
+            color: #00d4ff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s;
+        }
+
+        .social-links a:hover {
+            color: #fff;
+        }
+
+        .social-links svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
         }
 
         .main-grid {
@@ -135,12 +167,17 @@
             gap: 8px;
         }
 
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         .btn-primary {
             background: #00d4ff;
             color: #1a1a2e;
         }
 
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             background: #00a8cc;
         }
 
@@ -149,7 +186,7 @@
             color: #eee;
         }
 
-        .btn-secondary:hover {
+        .btn-secondary:hover:not(:disabled) {
             background: #1a4a7a;
         }
 
@@ -239,22 +276,11 @@
         .checkbox-group input[type="checkbox"] {
             width: 18px;
             height: 18px;
+            accent-color: #00d4ff;
         }
 
         .hidden-input {
             display: none;
-        }
-
-        .preview-panels {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        @media (max-width: 900px) {
-            .preview-panels {
-                grid-template-columns: 1fr;
-            }
         }
 
         .info-box {
@@ -269,12 +295,129 @@
         .info-box strong {
             color: #00d4ff;
         }
+
+        /* Progress indicator */
+        .progress-container {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .progress-container.active {
+            display: block;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #0d0d1a;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            border-radius: 4px;
+            transition: width 0.1s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            font-size: 0.8rem;
+            color: #888;
+            text-align: center;
+        }
+
+        /* Status indicator */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            background: #0f3460;
+            color: #888;
+        }
+
+        .status-badge.processing {
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+        }
+
+        .status-badge.success {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .spinner {
+            width: 12px;
+            height: 12px;
+            border: 2px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #0f3460;
+            text-align: center;
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        footer a {
+            color: #00d4ff;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .references {
+            margin-top: 15px;
+            font-size: 0.75rem;
+        }
+
+        .references h4 {
+            color: #888;
+            margin-bottom: 8px;
+            font-weight: normal;
+        }
+
+        .references ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>KiCad Image to Footprint Converter</h1>
-        <p class="subtitle">Convert images to KiCad silkscreen footprints with dithering</p>
+        <header>
+            <h1>KiCad Image to Footprint Converter</h1>
+            <p class="subtitle">Convert images to KiCad silkscreen footprints with dithering</p>
+            <div class="social-links">
+                <a href="https://x.com/i2cjak" target="_blank" rel="noopener">
+                    <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    @i2cjak
+                </a>
+                <a href="https://github.com/i2cjak/KiCadDithering" target="_blank" rel="noopener">
+                    <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                    Source
+                </a>
+            </div>
+        </header>
 
         <div class="main-grid">
             <!-- Controls Panel -->
@@ -355,6 +498,13 @@
                 <div class="btn-group" style="margin-top: 20px;">
                     <button class="btn btn-primary" id="generateBtn">Generate Footprint</button>
                 </div>
+
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">Processing...</div>
+                </div>
             </div>
 
             <!-- Original Image Preview -->
@@ -382,7 +532,7 @@
                 <h2>Dithered Preview</h2>
                 <div class="canvas-container">
                     <canvas id="ditheredCanvas"></canvas>
-                    <span class="canvas-label">Dithered</span>
+                    <span class="canvas-label" id="ditheredLabel">Dithered</span>
                 </div>
 
                 <div class="stats" id="ditheredStats">
@@ -408,75 +558,71 @@
 
         <!-- Output Section -->
         <div class="panel output-section">
-            <h2>KiCad Footprint Output</h2>
+            <h2>
+                KiCad Footprint Output
+                <span class="status-badge" id="statusBadge">Ready</span>
+            </h2>
             <div class="btn-group" style="margin-bottom: 15px;">
                 <button class="btn btn-primary" id="copyBtn">Copy to Clipboard</button>
                 <button class="btn btn-secondary" id="downloadBtn">Download .kicad_mod</button>
             </div>
             <textarea class="output-textarea" id="output" readonly placeholder="Generated footprint will appear here..."></textarea>
         </div>
+
+        <footer>
+            <p>Made by <a href="https://x.com/i2cjak" target="_blank" rel="noopener">@i2cjak</a></p>
+            <div class="references">
+                <h4>References & Credits</h4>
+                <ul>
+                    <li><a href="https://dev-docs.kicad.org/en/file-formats/sexpr-footprint/" target="_blank" rel="noopener">KiCad File Format Docs</a></li>
+                    <li><a href="https://surma.dev/things/ditherpunk/" target="_blank" rel="noopener">Ditherpunk by Surma</a></li>
+                </ul>
+            </div>
+        </footer>
     </div>
 
     <script>
-        // Bayer matrices
-        const BAYER_2 = [
-            [0, 2],
-            [3, 1]
-        ];
+        // Initialize Web Worker
+        let worker = null;
+        let workerSupported = typeof Worker !== 'undefined';
 
-        const BAYER_4 = [
-            [0, 8, 2, 10],
-            [12, 4, 14, 6],
-            [3, 11, 1, 9],
-            [15, 7, 13, 5]
-        ];
+        if (workerSupported) {
+            try {
+                worker = new Worker('worker.js');
+                worker.onmessage = handleWorkerMessage;
+                worker.onerror = (e) => {
+                    console.warn('Worker error, falling back to main thread:', e);
+                    workerSupported = false;
+                };
+            } catch (e) {
+                console.warn('Worker init failed, using main thread:', e);
+                workerSupported = false;
+            }
+        }
 
+        // Bayer matrices (for fallback)
+        const BAYER_2 = [[0, 2], [3, 1]];
+        const BAYER_4 = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]];
         const BAYER_8 = [
-            [0, 32, 8, 40, 2, 34, 10, 42],
-            [48, 16, 56, 24, 50, 18, 58, 26],
-            [12, 44, 4, 36, 14, 46, 6, 38],
-            [60, 28, 52, 20, 62, 30, 54, 22],
-            [3, 35, 11, 43, 1, 33, 9, 41],
-            [51, 19, 59, 27, 49, 17, 57, 25],
-            [15, 47, 7, 39, 13, 45, 5, 37],
-            [63, 31, 55, 23, 61, 29, 53, 21]
+            [0, 32, 8, 40, 2, 34, 10, 42], [48, 16, 56, 24, 50, 18, 58, 26],
+            [12, 44, 4, 36, 14, 46, 6, 38], [60, 28, 52, 20, 62, 30, 54, 22],
+            [3, 35, 11, 43, 1, 33, 9, 41], [51, 19, 59, 27, 49, 17, 57, 25],
+            [15, 47, 7, 39, 13, 45, 5, 37], [63, 31, 55, 23, 61, 29, 53, 21]
         ];
 
-        // Error diffusion kernels
-        const FLOYD_STEINBERG = [
-            [1, 0, 7/16],
-            [-1, 1, 3/16],
-            [0, 1, 5/16],
-            [1, 1, 1/16]
-        ];
-
-        const ATKINSON = [
-            [1, 0, 1/8],
-            [2, 0, 1/8],
-            [-1, 1, 1/8],
-            [0, 1, 1/8],
-            [1, 1, 1/8],
-            [0, 2, 1/8]
-        ];
-
+        const FLOYD_STEINBERG = [[1, 0, 7/16], [-1, 1, 3/16], [0, 1, 5/16], [1, 1, 1/16]];
+        const ATKINSON = [[1, 0, 1/8], [2, 0, 1/8], [-1, 1, 1/8], [0, 1, 1/8], [1, 1, 1/8], [0, 2, 1/8]];
         const JARVIS = [
-            [1, 0, 7/48],
-            [2, 0, 5/48],
-            [-2, 1, 3/48],
-            [-1, 1, 5/48],
-            [0, 1, 7/48],
-            [1, 1, 5/48],
-            [2, 1, 3/48],
-            [-2, 2, 1/48],
-            [-1, 2, 3/48],
-            [0, 2, 5/48],
-            [1, 2, 3/48],
-            [2, 2, 1/48]
+            [1, 0, 7/48], [2, 0, 5/48], [-2, 1, 3/48], [-1, 1, 5/48], [0, 1, 7/48],
+            [1, 1, 5/48], [2, 1, 3/48], [-2, 2, 1/48], [-1, 2, 3/48], [0, 2, 5/48], [1, 2, 3/48], [2, 2, 1/48]
         ];
 
         // State
         let originalImage = null;
         let ditheredData = null;
+        let currentOutputWidth = 0;
+        let currentOutputHeight = 0;
+        let isProcessing = false;
 
         // DOM elements
         const dropZone = document.getElementById('dropZone');
@@ -484,80 +630,61 @@
         const originalCanvas = document.getElementById('originalCanvas');
         const ditheredCanvas = document.getElementById('ditheredCanvas');
         const outputTextarea = document.getElementById('output');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const statusBadge = document.getElementById('statusBadge');
+        const generateBtn = document.getElementById('generateBtn');
 
-        // Utility: Generate UUID v4
+        // Utility functions
         function generateUUID() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            if (crypto.randomUUID) return crypto.randomUUID();
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
                 const r = Math.random() * 16 | 0;
-                const v = c === 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
+                return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
             });
         }
 
-        // sRGB to linear conversion
         function srgbToLinear(value) {
-            if (value <= 0.04045) {
-                return value / 12.92;
-            }
-            return Math.pow((value + 0.055) / 1.055, 2.4);
+            return value <= 0.04045 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
         }
 
-        // Linear to sRGB conversion
-        function linearToSrgb(value) {
-            if (value <= 0.0031308) {
-                return value * 12.92;
-            }
-            return 1.055 * Math.pow(value, 1/2.4) - 0.055;
-        }
-
-        // Convert image to grayscale array
         function imageToGrayscale(imageData, width, height, gammaCorrect) {
             const gray = new Float32Array(width * height);
             for (let i = 0; i < width * height; i++) {
                 const r = imageData[i * 4] / 255;
                 const g = imageData[i * 4 + 1] / 255;
                 const b = imageData[i * 4 + 2] / 255;
-
-                let luminance;
-                if (gammaCorrect) {
-                    luminance = 0.2126 * srgbToLinear(r) + 0.7152 * srgbToLinear(g) + 0.0722 * srgbToLinear(b);
-                } else {
-                    luminance = 0.299 * r + 0.587 * g + 0.114 * b;
-                }
-                gray[i] = luminance;
+                gray[i] = gammaCorrect
+                    ? 0.2126 * srgbToLinear(r) + 0.7152 * srgbToLinear(g) + 0.0722 * srgbToLinear(b)
+                    : 0.299 * r + 0.587 * g + 0.114 * b;
             }
             return gray;
         }
 
-        // Dithering algorithms
+        // Dithering (fallback for no worker)
         function thresholdDither(gray, width, height, threshold) {
             const result = new Uint8Array(width * height);
-            for (let i = 0; i < gray.length; i++) {
-                result[i] = gray[i] > threshold ? 255 : 0;
-            }
+            for (let i = 0; i < gray.length; i++) result[i] = gray[i] > threshold ? 255 : 0;
             return result;
         }
 
         function randomDither(gray, width, height, threshold) {
             const result = new Uint8Array(width * height);
             for (let i = 0; i < gray.length; i++) {
-                const noise = (Math.random() - 0.5) * 0.5;
-                result[i] = (gray[i] + noise) > threshold ? 255 : 0;
+                result[i] = (gray[i] + (Math.random() - 0.5) * 0.5) > threshold ? 255 : 0;
             }
             return result;
         }
 
         function bayerDither(gray, width, height, matrix, threshold) {
             const result = new Uint8Array(width * height);
-            const size = matrix.length;
-            const maxVal = size * size;
-
+            const size = matrix.length, maxVal = size * size;
             for (let y = 0; y < height; y++) {
                 for (let x = 0; x < width; x++) {
                     const i = y * width + x;
                     const bayerValue = matrix[y % size][x % size] / maxVal - 0.5;
-                    const adjusted = gray[i] + bayerValue * (1 - threshold);
-                    result[i] = adjusted > threshold ? 255 : 0;
+                    result[i] = (gray[i] + bayerValue * (1 - threshold)) > threshold ? 255 : 0;
                 }
             }
             return result;
@@ -566,18 +693,14 @@
         function errorDiffusionDither(gray, width, height, kernel, threshold) {
             const buffer = Float32Array.from(gray);
             const result = new Uint8Array(width * height);
-
             for (let y = 0; y < height; y++) {
                 for (let x = 0; x < width; x++) {
                     const i = y * width + x;
-                    const oldPixel = buffer[i];
-                    const newPixel = oldPixel > threshold ? 1 : 0;
+                    const newPixel = buffer[i] > threshold ? 1 : 0;
                     result[i] = newPixel * 255;
-                    const error = oldPixel - newPixel;
-
+                    const error = buffer[i] - newPixel;
                     for (const [dx, dy, weight] of kernel) {
-                        const nx = x + dx;
-                        const ny = y + dy;
+                        const nx = x + dx, ny = y + dy;
                         if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
                             buffer[ny * width + nx] += error * weight;
                         }
@@ -587,36 +710,73 @@
             return result;
         }
 
-        // Apply dithering
         function applyDithering(gray, width, height, algorithm, threshold) {
             switch (algorithm) {
-                case 'threshold':
-                    return thresholdDither(gray, width, height, threshold);
-                case 'random':
-                    return randomDither(gray, width, height, threshold);
-                case 'bayer2':
-                    return bayerDither(gray, width, height, BAYER_2, threshold);
-                case 'bayer4':
-                    return bayerDither(gray, width, height, BAYER_4, threshold);
-                case 'bayer8':
-                    return bayerDither(gray, width, height, BAYER_8, threshold);
-                case 'floydSteinberg':
-                    return errorDiffusionDither(gray, width, height, FLOYD_STEINBERG, threshold);
-                case 'atkinson':
-                    return errorDiffusionDither(gray, width, height, ATKINSON, threshold);
-                case 'jarvis':
-                    return errorDiffusionDither(gray, width, height, JARVIS, threshold);
-                default:
-                    return thresholdDither(gray, width, height, threshold);
+                case 'threshold': return thresholdDither(gray, width, height, threshold);
+                case 'random': return randomDither(gray, width, height, threshold);
+                case 'bayer2': return bayerDither(gray, width, height, BAYER_2, threshold);
+                case 'bayer4': return bayerDither(gray, width, height, BAYER_4, threshold);
+                case 'bayer8': return bayerDither(gray, width, height, BAYER_8, threshold);
+                case 'floydSteinberg': return errorDiffusionDither(gray, width, height, FLOYD_STEINBERG, threshold);
+                case 'atkinson': return errorDiffusionDither(gray, width, height, ATKINSON, threshold);
+                case 'jarvis': return errorDiffusionDither(gray, width, height, JARVIS, threshold);
+                default: return thresholdDither(gray, width, height, threshold);
             }
         }
 
-        // Load and process image
+        // Progress and status helpers
+        function showProgress(show) {
+            progressContainer.classList.toggle('active', show);
+        }
+
+        function updateProgress(percent, text) {
+            progressFill.style.width = percent + '%';
+            progressText.textContent = text;
+        }
+
+        function setStatus(status, text) {
+            statusBadge.className = 'status-badge ' + status;
+            statusBadge.innerHTML = status === 'processing'
+                ? '<span class="spinner"></span>' + text
+                : text;
+        }
+
+        // Worker message handler
+        function handleWorkerMessage(e) {
+            const { type, ...data } = e.data;
+
+            switch (type) {
+                case 'status':
+                    setStatus('processing', data.message);
+                    break;
+
+                case 'progress':
+                    updateProgress(data.percent, `Generating: ${data.current.toLocaleString()} / ${data.total.toLocaleString()} pixels`);
+                    break;
+
+                case 'dithered':
+                    ditheredData = data.ditheredData;
+                    currentOutputWidth = data.width;
+                    currentOutputHeight = data.height;
+                    renderDitheredPreview(data.ditheredData, data.width, data.height, data.blackCount);
+                    break;
+
+                case 'generated':
+                    outputTextarea.value = data.footprint;
+                    showProgress(false);
+                    setStatus('success', 'Complete');
+                    generateBtn.disabled = false;
+                    isProcessing = false;
+                    break;
+            }
+        }
+
+        // Image loading
         function loadImage(file) {
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = (e) => {
                 const img = new Image();
-                img.onload = function() {
+                img.onload = () => {
                     originalImage = img;
                     updateOriginalPreview();
                     processImage();
@@ -626,24 +786,12 @@
             reader.readAsDataURL(file);
         }
 
-        function loadImageFromDataURL(dataURL) {
-            const img = new Image();
-            img.onload = function() {
-                originalImage = img;
-                updateOriginalPreview();
-                processImage();
-            };
-            img.src = dataURL;
-        }
-
         function updateOriginalPreview() {
             if (!originalImage) return;
-
             const ctx = originalCanvas.getContext('2d');
             originalCanvas.width = originalImage.width;
             originalCanvas.height = originalImage.height;
             ctx.drawImage(originalImage, 0, 0);
-
             document.getElementById('origWidth').textContent = originalImage.width;
             document.getElementById('origHeight').textContent = originalImage.height;
         }
@@ -655,7 +803,6 @@
             const scale = outputWidth / originalImage.width;
             const outputHeight = Math.round(originalImage.height * scale);
 
-            // Create scaled canvas
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = outputWidth;
             tempCanvas.height = outputHeight;
@@ -666,67 +813,115 @@
             const imageData = tempCtx.getImageData(0, 0, outputWidth, outputHeight);
             const gammaCorrect = document.getElementById('gammaCorrect').checked;
             const invert = document.getElementById('invertImage').checked;
-
-            let gray = imageToGrayscale(imageData.data, outputWidth, outputHeight, gammaCorrect);
-
-            if (invert) {
-                for (let i = 0; i < gray.length; i++) {
-                    gray[i] = 1 - gray[i];
-                }
-            }
-
             const algorithm = document.getElementById('algorithm').value;
             const threshold = parseFloat(document.getElementById('threshold').value);
 
-            ditheredData = applyDithering(gray, outputWidth, outputHeight, algorithm, threshold);
+            if (workerSupported && worker) {
+                worker.postMessage({
+                    type: 'dither',
+                    data: {
+                        imageData: imageData.data,
+                        width: outputWidth,
+                        height: outputHeight,
+                        algorithm,
+                        threshold,
+                        gammaCorrect,
+                        invert
+                    }
+                });
+            } else {
+                // Fallback to main thread
+                let gray = imageToGrayscale(imageData.data, outputWidth, outputHeight, gammaCorrect);
+                if (invert) for (let i = 0; i < gray.length; i++) gray[i] = 1 - gray[i];
 
-            // Draw dithered result
-            ditheredCanvas.width = outputWidth;
-            ditheredCanvas.height = outputHeight;
+                ditheredData = applyDithering(gray, outputWidth, outputHeight, algorithm, threshold);
+                currentOutputWidth = outputWidth;
+                currentOutputHeight = outputHeight;
+
+                let blackCount = 0;
+                for (let i = 0; i < ditheredData.length; i++) if (ditheredData[i] === 0) blackCount++;
+
+                renderDitheredPreview(ditheredData, outputWidth, outputHeight, blackCount);
+            }
+        }
+
+        function renderDitheredPreview(data, width, height, blackCount) {
+            ditheredCanvas.width = width;
+            ditheredCanvas.height = height;
             const ctx = ditheredCanvas.getContext('2d');
-            const resultImageData = ctx.createImageData(outputWidth, outputHeight);
+            const resultImageData = ctx.createImageData(width, height);
 
-            let blackCount = 0;
-            for (let i = 0; i < ditheredData.length; i++) {
-                const v = ditheredData[i];
-                resultImageData.data[i * 4] = v;
-                resultImageData.data[i * 4 + 1] = v;
-                resultImageData.data[i * 4 + 2] = v;
+            for (let i = 0; i < data.length; i++) {
+                resultImageData.data[i * 4] = data[i];
+                resultImageData.data[i * 4 + 1] = data[i];
+                resultImageData.data[i * 4 + 2] = data[i];
                 resultImageData.data[i * 4 + 3] = 255;
-                if (v === 0) blackCount++;
             }
             ctx.putImageData(resultImageData, 0, 0);
 
-            // Update stats
             const pixelSize = parseFloat(document.getElementById('pixelSize').value);
-            document.getElementById('outWidth').textContent = outputWidth;
-            document.getElementById('outHeight').textContent = outputHeight;
+            document.getElementById('outWidth').textContent = width;
+            document.getElementById('outHeight').textContent = height;
             document.getElementById('blackPixels').textContent = blackCount.toLocaleString();
             document.getElementById('physicalSize').textContent =
-                `${(outputWidth * pixelSize).toFixed(1)} x ${(outputHeight * pixelSize).toFixed(1)}`;
+                `${(width * pixelSize).toFixed(1)} x ${(height * pixelSize).toFixed(1)}`;
         }
 
+        // Footprint generation
         function generateFootprint() {
             if (!ditheredData) {
                 alert('Please load an image first');
                 return;
             }
 
-            const outputWidth = parseInt(document.getElementById('outputWidth').value);
-            const scale = outputWidth / originalImage.width;
-            const outputHeight = Math.round(originalImage.height * scale);
+            if (isProcessing) return;
+            isProcessing = true;
+            generateBtn.disabled = true;
 
             const pixelSize = parseFloat(document.getElementById('pixelSize').value);
             const footprintName = document.getElementById('footprintName').value || 'ImageLogo';
             const libraryName = document.getElementById('libraryName').value || 'Custom';
             const layer = document.getElementById('layer').value;
 
-            const halfPixel = pixelSize / 2;
-            const centerX = (outputWidth * pixelSize) / 2;
-            const centerY = (outputHeight * pixelSize) / 2;
+            showProgress(true);
+            updateProgress(0, 'Starting...');
+            setStatus('processing', 'Generating...');
 
-            // Build footprint
-            let output = `(footprint "${libraryName}:${footprintName}"
+            if (workerSupported && worker) {
+                worker.postMessage({
+                    type: 'generate',
+                    data: {
+                        ditheredData: ditheredData,
+                        width: currentOutputWidth,
+                        height: currentOutputHeight,
+                        options: { pixelSize, footprintName, libraryName, layer }
+                    }
+                });
+            } else {
+                // Fallback with chunked processing using setTimeout
+                generateFootprintChunked(pixelSize, footprintName, libraryName, layer);
+            }
+        }
+
+        function generateFootprintChunked(pixelSize, footprintName, libraryName, layer) {
+            const width = currentOutputWidth;
+            const height = currentOutputHeight;
+            const centerX = (width * pixelSize) / 2;
+            const centerY = (height * pixelSize) / 2;
+
+            // Collect black pixels
+            const blackPixels = [];
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    if (ditheredData[y * width + x] === 0) blackPixels.push({ x, y });
+                }
+            }
+
+            const totalPixels = blackPixels.length;
+            const parts = [];
+
+            // Header
+            parts.push(`(footprint "${libraryName}:${footprintName}"
     (version 20241229)
     (generator "KiCadDithering")
     (generator_version "1.0")
@@ -768,20 +963,23 @@
             (font (size 1.27 1.27) (thickness 0.15))
         )
     )
-    (attr board_only exclude_from_pos_files exclude_from_bom)
-`;
+    (attr board_only exclude_from_pos_files exclude_from_bom)`);
 
-            // Generate polygons for black pixels (square pixels that can touch)
-            for (let y = 0; y < outputHeight; y++) {
-                for (let x = 0; x < outputWidth; x++) {
-                    const i = y * outputWidth + x;
-                    if (ditheredData[i] === 0) { // Black pixel
-                        const left = (x * pixelSize - centerX).toFixed(6);
-                        const right = ((x + 1) * pixelSize - centerX).toFixed(6);
-                        const top = (y * pixelSize - centerY).toFixed(6);
-                        const bottom = ((y + 1) * pixelSize - centerY).toFixed(6);
+            let index = 0;
+            const chunkSize = 500;
 
-                        output += `    (fp_poly
+            function processChunk() {
+                const endIndex = Math.min(index + chunkSize, totalPixels);
+
+                for (; index < endIndex; index++) {
+                    const { x, y } = blackPixels[index];
+                    const left = (x * pixelSize - centerX).toFixed(6);
+                    const right = ((x + 1) * pixelSize - centerX).toFixed(6);
+                    const top = (y * pixelSize - centerY).toFixed(6);
+                    const bottom = ((y + 1) * pixelSize - centerY).toFixed(6);
+
+                    parts.push(`
+    (fp_poly
         (pts
             (xy ${left} ${top}) (xy ${right} ${top}) (xy ${right} ${bottom}) (xy ${left} ${bottom})
         )
@@ -789,16 +987,27 @@
         (fill yes)
         (layer "${layer}")
         (uuid "${generateUUID()}")
-    )
-`;
-                    }
+    )`);
+                }
+
+                const percent = Math.round((index / totalPixels) * 100);
+                updateProgress(percent, `Generating: ${index.toLocaleString()} / ${totalPixels.toLocaleString()} pixels`);
+
+                if (index < totalPixels) {
+                    setTimeout(processChunk, 0);
+                } else {
+                    parts.push(`
+    (embedded_fonts no)
+)`);
+                    outputTextarea.value = parts.join('');
+                    showProgress(false);
+                    setStatus('success', 'Complete');
+                    generateBtn.disabled = false;
+                    isProcessing = false;
                 }
             }
 
-            output += `    (embedded_fonts no)
-)`;
-
-            outputTextarea.value = output;
+            setTimeout(processChunk, 0);
         }
 
         // Event listeners
@@ -809,76 +1018,86 @@
             dropZone.classList.add('dragover');
         });
 
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('dragover');
-        });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
 
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropZone.classList.remove('dragover');
             const file = e.dataTransfer.files[0];
-            if (file && file.type.startsWith('image/')) {
-                loadImage(file);
-            }
+            if (file && file.type.startsWith('image/')) loadImage(file);
         });
 
         fileInput.addEventListener('change', (e) => {
-            if (e.target.files[0]) {
-                loadImage(e.target.files[0]);
-            }
+            if (e.target.files[0]) loadImage(e.target.files[0]);
         });
 
-        // Paste support
         document.addEventListener('paste', (e) => {
-            const items = e.clipboardData.items;
-            for (const item of items) {
+            for (const item of e.clipboardData.items) {
                 if (item.type.startsWith('image/')) {
-                    const file = item.getAsFile();
-                    loadImage(file);
+                    loadImage(item.getAsFile());
                     break;
                 }
             }
         });
 
-        // Control change handlers
+        // Debounce helper
+        function debounce(fn, delay) {
+            let timeout;
+            return (...args) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => fn(...args), delay);
+            };
+        }
+
+        const debouncedProcess = debounce(processImage, 100);
+
         document.getElementById('algorithm').addEventListener('change', processImage);
         document.getElementById('threshold').addEventListener('input', function() {
             document.getElementById('thresholdValue').textContent = parseFloat(this.value).toFixed(2);
-            processImage();
+            debouncedProcess();
         });
         document.getElementById('outputWidth').addEventListener('change', processImage);
-        document.getElementById('pixelSize').addEventListener('change', processImage);
+        document.getElementById('pixelSize').addEventListener('change', () => {
+            if (ditheredData) {
+                const pixelSize = parseFloat(document.getElementById('pixelSize').value);
+                document.getElementById('physicalSize').textContent =
+                    `${(currentOutputWidth * pixelSize).toFixed(1)} x ${(currentOutputHeight * pixelSize).toFixed(1)}`;
+            }
+        });
         document.getElementById('invertImage').addEventListener('change', processImage);
         document.getElementById('gammaCorrect').addEventListener('change', processImage);
 
-        // Generate button
-        document.getElementById('generateBtn').addEventListener('click', generateFootprint);
+        generateBtn.addEventListener('click', generateFootprint);
 
-        // Copy button
-        document.getElementById('copyBtn').addEventListener('click', () => {
-            outputTextarea.select();
-            document.execCommand('copy');
-            const btn = document.getElementById('copyBtn');
-            const originalText = btn.textContent;
-            btn.textContent = 'Copied!';
-            setTimeout(() => btn.textContent = originalText, 2000);
+        document.getElementById('copyBtn').addEventListener('click', async () => {
+            const text = outputTextarea.value;
+            if (!text) return;
+
+            try {
+                await navigator.clipboard.writeText(text);
+                const btn = document.getElementById('copyBtn');
+                const orig = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = orig, 2000);
+            } catch {
+                outputTextarea.select();
+                document.execCommand('copy');
+            }
         });
 
-        // Download button
         document.getElementById('downloadBtn').addEventListener('click', () => {
             const content = outputTextarea.value;
             if (!content) {
                 alert('Generate a footprint first');
                 return;
             }
-            const footprintName = document.getElementById('footprintName').value || 'ImageLogo';
+            const name = document.getElementById('footprintName').value || 'ImageLogo';
             const blob = new Blob([content], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = `${footprintName}.kicad_mod`;
+            a.href = URL.createObjectURL(blob);
+            a.download = `${name}.kicad_mod`;
             a.click();
-            URL.revokeObjectURL(url);
+            URL.revokeObjectURL(a.href);
         });
     </script>
 </body>
