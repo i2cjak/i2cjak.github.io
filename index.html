@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KiCad Image to Footprint Converter</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #00d4ff;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #0f3460;
+        }
+
+        .panel h2 {
+            color: #00d4ff;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            border-bottom: 1px solid #0f3460;
+            padding-bottom: 10px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .control-group input[type="number"],
+        .control-group input[type="text"],
+        .control-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #0f3460;
+            border-radius: 6px;
+            background: #1a1a2e;
+            color: #eee;
+            font-size: 0.9rem;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .control-group .value-display {
+            text-align: right;
+            font-size: 0.85rem;
+            color: #00d4ff;
+            margin-top: 3px;
+        }
+
+        .drop-zone {
+            border: 2px dashed #0f3460;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .drop-zone p {
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        .drop-zone .hint {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #00d4ff;
+            color: #1a1a2e;
+        }
+
+        .btn-primary:hover {
+            background: #00a8cc;
+        }
+
+        .btn-secondary {
+            background: #0f3460;
+            color: #eee;
+        }
+
+        .btn-secondary:hover {
+            background: #1a4a7a;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .canvas-container {
+            position: relative;
+            background: #0d0d1a;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+        }
+
+        .canvas-container canvas {
+            max-width: 100%;
+            max-height: 400px;
+            image-rendering: pixelated;
+        }
+
+        .canvas-label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .output-section {
+            margin-top: 20px;
+        }
+
+        .output-textarea {
+            width: 100%;
+            height: 200px;
+            background: #0d0d1a;
+            border: 1px solid #0f3460;
+            border-radius: 8px;
+            color: #0f0;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            padding: 15px;
+            resize: vertical;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            background: #1a1a2e;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-item .value {
+            font-size: 1.2rem;
+            color: #00d4ff;
+            font-weight: bold;
+        }
+
+        .stat-item .label {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+
+        .hidden-input {
+            display: none;
+        }
+
+        .preview-panels {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .preview-panels {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .info-box {
+            background: #0f3460;
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+
+        .info-box strong {
+            color: #00d4ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>KiCad Image to Footprint Converter</h1>
+        <p class="subtitle">Convert images to KiCad silkscreen footprints with dithering</p>
+
+        <div class="main-grid">
+            <!-- Controls Panel -->
+            <div class="panel">
+                <h2>Settings</h2>
+
+                <div class="drop-zone" id="dropZone">
+                    <p>Drop image here</p>
+                    <p class="hint">or click to select / Ctrl+V to paste</p>
+                </div>
+                <input type="file" id="fileInput" class="hidden-input" accept="image/*">
+
+                <div class="control-group">
+                    <label>Dithering Algorithm</label>
+                    <select id="algorithm">
+                        <option value="threshold">Threshold (Simple)</option>
+                        <option value="random">Random Noise</option>
+                        <option value="bayer2">Bayer 2x2</option>
+                        <option value="bayer4">Bayer 4x4</option>
+                        <option value="bayer8" selected>Bayer 8x8</option>
+                        <option value="floydSteinberg">Floyd-Steinberg</option>
+                        <option value="atkinson">Atkinson</option>
+                        <option value="jarvis">Jarvis-Judice-Ninke</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label>Threshold</label>
+                    <input type="range" id="threshold" min="0" max="1" step="0.01" value="0.5">
+                    <div class="value-display" id="thresholdValue">0.50</div>
+                </div>
+
+                <div class="control-group">
+                    <label>Pixel Size (mm)</label>
+                    <input type="number" id="pixelSize" value="0.2" min="0.1" max="2" step="0.05">
+                    <div class="info-box">
+                        <strong>Manufacturing minimums:</strong><br>
+                        Most fabs: 0.15mm<br>
+                        Recommended: 0.2-0.3mm
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Output Width (pixels)</label>
+                    <input type="number" id="outputWidth" value="100" min="10" max="500" step="1">
+                </div>
+
+                <div class="control-group">
+                    <label>Footprint Name</label>
+                    <input type="text" id="footprintName" value="ImageLogo">
+                </div>
+
+                <div class="control-group">
+                    <label>Library Name</label>
+                    <input type="text" id="libraryName" value="Custom">
+                </div>
+
+                <div class="control-group">
+                    <label>Layer</label>
+                    <select id="layer">
+                        <option value="F.SilkS" selected>F.SilkS (Front Silkscreen)</option>
+                        <option value="B.SilkS">B.SilkS (Back Silkscreen)</option>
+                        <option value="F.Cu">F.Cu (Front Copper)</option>
+                        <option value="B.Cu">B.Cu (Back Copper)</option>
+                    </select>
+                </div>
+
+                <div class="control-group checkbox-group">
+                    <input type="checkbox" id="invertImage">
+                    <label for="invertImage">Invert Image</label>
+                </div>
+
+                <div class="control-group checkbox-group">
+                    <input type="checkbox" id="gammaCorrect" checked>
+                    <label for="gammaCorrect">Gamma Correction (sRGB)</label>
+                </div>
+
+                <div class="btn-group" style="margin-top: 20px;">
+                    <button class="btn btn-primary" id="generateBtn">Generate Footprint</button>
+                </div>
+            </div>
+
+            <!-- Original Image Preview -->
+            <div class="panel">
+                <h2>Original Image</h2>
+                <div class="canvas-container">
+                    <canvas id="originalCanvas"></canvas>
+                    <span class="canvas-label">Original</span>
+                </div>
+
+                <div class="stats" id="originalStats">
+                    <div class="stat-item">
+                        <div class="value" id="origWidth">-</div>
+                        <div class="label">Width (px)</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="value" id="origHeight">-</div>
+                        <div class="label">Height (px)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dithered Preview -->
+            <div class="panel">
+                <h2>Dithered Preview</h2>
+                <div class="canvas-container">
+                    <canvas id="ditheredCanvas"></canvas>
+                    <span class="canvas-label">Dithered</span>
+                </div>
+
+                <div class="stats" id="ditheredStats">
+                    <div class="stat-item">
+                        <div class="value" id="outWidth">-</div>
+                        <div class="label">Width (px)</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="value" id="outHeight">-</div>
+                        <div class="label">Height (px)</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="value" id="blackPixels">-</div>
+                        <div class="label">Black Pixels</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="value" id="physicalSize">-</div>
+                        <div class="label">Physical Size (mm)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Output Section -->
+        <div class="panel output-section">
+            <h2>KiCad Footprint Output</h2>
+            <div class="btn-group" style="margin-bottom: 15px;">
+                <button class="btn btn-primary" id="copyBtn">Copy to Clipboard</button>
+                <button class="btn btn-secondary" id="downloadBtn">Download .kicad_mod</button>
+            </div>
+            <textarea class="output-textarea" id="output" readonly placeholder="Generated footprint will appear here..."></textarea>
+        </div>
+    </div>
+
+    <script>
+        // Bayer matrices
+        const BAYER_2 = [
+            [0, 2],
+            [3, 1]
+        ];
+
+        const BAYER_4 = [
+            [0, 8, 2, 10],
+            [12, 4, 14, 6],
+            [3, 11, 1, 9],
+            [15, 7, 13, 5]
+        ];
+
+        const BAYER_8 = [
+            [0, 32, 8, 40, 2, 34, 10, 42],
+            [48, 16, 56, 24, 50, 18, 58, 26],
+            [12, 44, 4, 36, 14, 46, 6, 38],
+            [60, 28, 52, 20, 62, 30, 54, 22],
+            [3, 35, 11, 43, 1, 33, 9, 41],
+            [51, 19, 59, 27, 49, 17, 57, 25],
+            [15, 47, 7, 39, 13, 45, 5, 37],
+            [63, 31, 55, 23, 61, 29, 53, 21]
+        ];
+
+        // Error diffusion kernels
+        const FLOYD_STEINBERG = [
+            [1, 0, 7/16],
+            [-1, 1, 3/16],
+            [0, 1, 5/16],
+            [1, 1, 1/16]
+        ];
+
+        const ATKINSON = [
+            [1, 0, 1/8],
+            [2, 0, 1/8],
+            [-1, 1, 1/8],
+            [0, 1, 1/8],
+            [1, 1, 1/8],
+            [0, 2, 1/8]
+        ];
+
+        const JARVIS = [
+            [1, 0, 7/48],
+            [2, 0, 5/48],
+            [-2, 1, 3/48],
+            [-1, 1, 5/48],
+            [0, 1, 7/48],
+            [1, 1, 5/48],
+            [2, 1, 3/48],
+            [-2, 2, 1/48],
+            [-1, 2, 3/48],
+            [0, 2, 5/48],
+            [1, 2, 3/48],
+            [2, 2, 1/48]
+        ];
+
+        // State
+        let originalImage = null;
+        let ditheredData = null;
+
+        // DOM elements
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const originalCanvas = document.getElementById('originalCanvas');
+        const ditheredCanvas = document.getElementById('ditheredCanvas');
+        const outputTextarea = document.getElementById('output');
+
+        // Utility: Generate UUID v4
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        // sRGB to linear conversion
+        function srgbToLinear(value) {
+            if (value <= 0.04045) {
+                return value / 12.92;
+            }
+            return Math.pow((value + 0.055) / 1.055, 2.4);
+        }
+
+        // Linear to sRGB conversion
+        function linearToSrgb(value) {
+            if (value <= 0.0031308) {
+                return value * 12.92;
+            }
+            return 1.055 * Math.pow(value, 1/2.4) - 0.055;
+        }
+
+        // Convert image to grayscale array
+        function imageToGrayscale(imageData, width, height, gammaCorrect) {
+            const gray = new Float32Array(width * height);
+            for (let i = 0; i < width * height; i++) {
+                const r = imageData[i * 4] / 255;
+                const g = imageData[i * 4 + 1] / 255;
+                const b = imageData[i * 4 + 2] / 255;
+
+                let luminance;
+                if (gammaCorrect) {
+                    luminance = 0.2126 * srgbToLinear(r) + 0.7152 * srgbToLinear(g) + 0.0722 * srgbToLinear(b);
+                } else {
+                    luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+                }
+                gray[i] = luminance;
+            }
+            return gray;
+        }
+
+        // Dithering algorithms
+        function thresholdDither(gray, width, height, threshold) {
+            const result = new Uint8Array(width * height);
+            for (let i = 0; i < gray.length; i++) {
+                result[i] = gray[i] > threshold ? 255 : 0;
+            }
+            return result;
+        }
+
+        function randomDither(gray, width, height, threshold) {
+            const result = new Uint8Array(width * height);
+            for (let i = 0; i < gray.length; i++) {
+                const noise = (Math.random() - 0.5) * 0.5;
+                result[i] = (gray[i] + noise) > threshold ? 255 : 0;
+            }
+            return result;
+        }
+
+        function bayerDither(gray, width, height, matrix, threshold) {
+            const result = new Uint8Array(width * height);
+            const size = matrix.length;
+            const maxVal = size * size;
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const i = y * width + x;
+                    const bayerValue = matrix[y % size][x % size] / maxVal - 0.5;
+                    const adjusted = gray[i] + bayerValue * (1 - threshold);
+                    result[i] = adjusted > threshold ? 255 : 0;
+                }
+            }
+            return result;
+        }
+
+        function errorDiffusionDither(gray, width, height, kernel, threshold) {
+            const buffer = Float32Array.from(gray);
+            const result = new Uint8Array(width * height);
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const i = y * width + x;
+                    const oldPixel = buffer[i];
+                    const newPixel = oldPixel > threshold ? 1 : 0;
+                    result[i] = newPixel * 255;
+                    const error = oldPixel - newPixel;
+
+                    for (const [dx, dy, weight] of kernel) {
+                        const nx = x + dx;
+                        const ny = y + dy;
+                        if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                            buffer[ny * width + nx] += error * weight;
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        // Apply dithering
+        function applyDithering(gray, width, height, algorithm, threshold) {
+            switch (algorithm) {
+                case 'threshold':
+                    return thresholdDither(gray, width, height, threshold);
+                case 'random':
+                    return randomDither(gray, width, height, threshold);
+                case 'bayer2':
+                    return bayerDither(gray, width, height, BAYER_2, threshold);
+                case 'bayer4':
+                    return bayerDither(gray, width, height, BAYER_4, threshold);
+                case 'bayer8':
+                    return bayerDither(gray, width, height, BAYER_8, threshold);
+                case 'floydSteinberg':
+                    return errorDiffusionDither(gray, width, height, FLOYD_STEINBERG, threshold);
+                case 'atkinson':
+                    return errorDiffusionDither(gray, width, height, ATKINSON, threshold);
+                case 'jarvis':
+                    return errorDiffusionDither(gray, width, height, JARVIS, threshold);
+                default:
+                    return thresholdDither(gray, width, height, threshold);
+            }
+        }
+
+        // Load and process image
+        function loadImage(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    originalImage = img;
+                    updateOriginalPreview();
+                    processImage();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function loadImageFromDataURL(dataURL) {
+            const img = new Image();
+            img.onload = function() {
+                originalImage = img;
+                updateOriginalPreview();
+                processImage();
+            };
+            img.src = dataURL;
+        }
+
+        function updateOriginalPreview() {
+            if (!originalImage) return;
+
+            const ctx = originalCanvas.getContext('2d');
+            originalCanvas.width = originalImage.width;
+            originalCanvas.height = originalImage.height;
+            ctx.drawImage(originalImage, 0, 0);
+
+            document.getElementById('origWidth').textContent = originalImage.width;
+            document.getElementById('origHeight').textContent = originalImage.height;
+        }
+
+        function processImage() {
+            if (!originalImage) return;
+
+            const outputWidth = parseInt(document.getElementById('outputWidth').value);
+            const scale = outputWidth / originalImage.width;
+            const outputHeight = Math.round(originalImage.height * scale);
+
+            // Create scaled canvas
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = outputWidth;
+            tempCanvas.height = outputHeight;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.imageSmoothingEnabled = true;
+            tempCtx.drawImage(originalImage, 0, 0, outputWidth, outputHeight);
+
+            const imageData = tempCtx.getImageData(0, 0, outputWidth, outputHeight);
+            const gammaCorrect = document.getElementById('gammaCorrect').checked;
+            const invert = document.getElementById('invertImage').checked;
+
+            let gray = imageToGrayscale(imageData.data, outputWidth, outputHeight, gammaCorrect);
+
+            if (invert) {
+                for (let i = 0; i < gray.length; i++) {
+                    gray[i] = 1 - gray[i];
+                }
+            }
+
+            const algorithm = document.getElementById('algorithm').value;
+            const threshold = parseFloat(document.getElementById('threshold').value);
+
+            ditheredData = applyDithering(gray, outputWidth, outputHeight, algorithm, threshold);
+
+            // Draw dithered result
+            ditheredCanvas.width = outputWidth;
+            ditheredCanvas.height = outputHeight;
+            const ctx = ditheredCanvas.getContext('2d');
+            const resultImageData = ctx.createImageData(outputWidth, outputHeight);
+
+            let blackCount = 0;
+            for (let i = 0; i < ditheredData.length; i++) {
+                const v = ditheredData[i];
+                resultImageData.data[i * 4] = v;
+                resultImageData.data[i * 4 + 1] = v;
+                resultImageData.data[i * 4 + 2] = v;
+                resultImageData.data[i * 4 + 3] = 255;
+                if (v === 0) blackCount++;
+            }
+            ctx.putImageData(resultImageData, 0, 0);
+
+            // Update stats
+            const pixelSize = parseFloat(document.getElementById('pixelSize').value);
+            document.getElementById('outWidth').textContent = outputWidth;
+            document.getElementById('outHeight').textContent = outputHeight;
+            document.getElementById('blackPixels').textContent = blackCount.toLocaleString();
+            document.getElementById('physicalSize').textContent =
+                `${(outputWidth * pixelSize).toFixed(1)} x ${(outputHeight * pixelSize).toFixed(1)}`;
+        }
+
+        function generateFootprint() {
+            if (!ditheredData) {
+                alert('Please load an image first');
+                return;
+            }
+
+            const outputWidth = parseInt(document.getElementById('outputWidth').value);
+            const scale = outputWidth / originalImage.width;
+            const outputHeight = Math.round(originalImage.height * scale);
+
+            const pixelSize = parseFloat(document.getElementById('pixelSize').value);
+            const footprintName = document.getElementById('footprintName').value || 'ImageLogo';
+            const libraryName = document.getElementById('libraryName').value || 'Custom';
+            const layer = document.getElementById('layer').value;
+
+            const halfPixel = pixelSize / 2;
+            const centerX = (outputWidth * pixelSize) / 2;
+            const centerY = (outputHeight * pixelSize) / 2;
+
+            // Build footprint
+            let output = `(footprint "${libraryName}:${footprintName}"
+    (version 20241229)
+    (generator "KiCadDithering")
+    (generator_version "1.0")
+    (layer "F.Cu")
+    (uuid "${generateUUID()}")
+    (at 0 0)
+    (property "Reference" "G***"
+        (at 0 ${(-centerY - 2).toFixed(2)} 0)
+        (layer "${layer}")
+        (uuid "${generateUUID()}")
+        (effects
+            (font (size 1.5 1.5) (thickness 0.3))
+        )
+    )
+    (property "Value" "${footprintName}"
+        (at 0 ${(centerY + 2).toFixed(2)} 0)
+        (layer "${layer}")
+        (hide yes)
+        (uuid "${generateUUID()}")
+        (effects
+            (font (size 1.5 1.5) (thickness 0.3))
+        )
+    )
+    (property "Datasheet" ""
+        (at 0 0 0)
+        (layer "F.Fab")
+        (hide yes)
+        (uuid "${generateUUID()}")
+        (effects
+            (font (size 1.27 1.27) (thickness 0.15))
+        )
+    )
+    (property "Description" "Image converted to footprint"
+        (at 0 0 0)
+        (layer "F.Fab")
+        (hide yes)
+        (uuid "${generateUUID()}")
+        (effects
+            (font (size 1.27 1.27) (thickness 0.15))
+        )
+    )
+    (attr board_only exclude_from_pos_files exclude_from_bom)
+`;
+
+            // Generate polygons for black pixels (square pixels that can touch)
+            for (let y = 0; y < outputHeight; y++) {
+                for (let x = 0; x < outputWidth; x++) {
+                    const i = y * outputWidth + x;
+                    if (ditheredData[i] === 0) { // Black pixel
+                        const left = (x * pixelSize - centerX).toFixed(6);
+                        const right = ((x + 1) * pixelSize - centerX).toFixed(6);
+                        const top = (y * pixelSize - centerY).toFixed(6);
+                        const bottom = ((y + 1) * pixelSize - centerY).toFixed(6);
+
+                        output += `    (fp_poly
+        (pts
+            (xy ${left} ${top}) (xy ${right} ${top}) (xy ${right} ${bottom}) (xy ${left} ${bottom})
+        )
+        (stroke (width 0) (type solid))
+        (fill yes)
+        (layer "${layer}")
+        (uuid "${generateUUID()}")
+    )
+`;
+                    }
+                }
+            }
+
+            output += `    (embedded_fonts no)
+)`;
+
+            outputTextarea.value = output;
+        }
+
+        // Event listeners
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                loadImage(file);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files[0]) {
+                loadImage(e.target.files[0]);
+            }
+        });
+
+        // Paste support
+        document.addEventListener('paste', (e) => {
+            const items = e.clipboardData.items;
+            for (const item of items) {
+                if (item.type.startsWith('image/')) {
+                    const file = item.getAsFile();
+                    loadImage(file);
+                    break;
+                }
+            }
+        });
+
+        // Control change handlers
+        document.getElementById('algorithm').addEventListener('change', processImage);
+        document.getElementById('threshold').addEventListener('input', function() {
+            document.getElementById('thresholdValue').textContent = parseFloat(this.value).toFixed(2);
+            processImage();
+        });
+        document.getElementById('outputWidth').addEventListener('change', processImage);
+        document.getElementById('pixelSize').addEventListener('change', processImage);
+        document.getElementById('invertImage').addEventListener('change', processImage);
+        document.getElementById('gammaCorrect').addEventListener('change', processImage);
+
+        // Generate button
+        document.getElementById('generateBtn').addEventListener('click', generateFootprint);
+
+        // Copy button
+        document.getElementById('copyBtn').addEventListener('click', () => {
+            outputTextarea.select();
+            document.execCommand('copy');
+            const btn = document.getElementById('copyBtn');
+            const originalText = btn.textContent;
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = originalText, 2000);
+        });
+
+        // Download button
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            const content = outputTextarea.value;
+            if (!content) {
+                alert('Generate a footprint first');
+                return;
+            }
+            const footprintName = document.getElementById('footprintName').value || 'ImageLogo';
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${footprintName}.kicad_mod`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+    </script>
+</body>
+</html>
