@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KiCad Image to Footprint Converter</title>
-    <meta name="description" content="Convert images to KiCad silkscreen footprints with dithering algorithms">
+    <title>i2cjak Tools</title>
+    <meta name="description" content="i2cjak tools">
     <meta name="author" content="i2cjak">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Carlito:wght@700&display=swap" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
@@ -36,11 +39,6 @@
             color: #00d4ff;
         }
 
-        .subtitle {
-            color: #888;
-            margin-bottom: 15px;
-        }
-
         .social-links {
             display: flex;
             justify-content: center;
@@ -66,6 +64,128 @@
             width: 18px;
             height: 18px;
             fill: currentColor;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 0 auto 20px;
+        }
+
+        .tab-button {
+            padding: 10px 16px;
+            border: 1px solid #0f3460;
+            border-radius: 6px;
+            background: #16213e;
+            color: #eee;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .tab-button:hover,
+        .tab-button.active {
+            border-color: #00d4ff;
+            background: #00d4ff;
+            color: #1a1a2e;
+        }
+
+        .tab-panel[hidden] {
+            display: none;
+        }
+
+        .openwork-grid {
+            display: grid;
+            grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        .openwork-preview-panel {
+            min-width: 0;
+        }
+
+        .openwork-canvas-shell {
+            width: min(100%, 720px);
+            aspect-ratio: 1;
+            margin: 0 auto;
+            background-color: #050608;
+            background-image:
+                linear-gradient(45deg, rgba(255, 255, 255, 0.08) 25%, transparent 25%),
+                linear-gradient(-45deg, rgba(255, 255, 255, 0.08) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.08) 75%),
+                linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.08) 75%);
+            background-position: 0 0, 0 16px, 16px -16px, -16px 0;
+            background-size: 32px 32px;
+            border: 1px solid #0f3460;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .openwork-canvas-shell canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .openwork-status {
+            margin-top: 12px;
+            color: #888;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .openwork-actions {
+            margin-top: 20px;
+        }
+
+        .capacitor-shell {
+            background: #050608;
+            border: 1px solid #0f3460;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .capacitor-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .capacitor-toolbar h2 {
+            color: #00d4ff;
+            font-size: 1.05rem;
+            margin: 0;
+        }
+
+        .capacitor-frame {
+            display: block;
+            width: 100%;
+            height: min(76vh, 860px);
+            min-height: 560px;
+            border: 1px solid #0f3460;
+            border-radius: 6px;
+            background: #000;
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 12px;
+            }
+
+            .capacitor-frame {
+                height: 72vh;
+                min-height: 520px;
+            }
+
+            .openwork-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .main-grid {
@@ -108,6 +228,7 @@
 
         .control-group input[type="number"],
         .control-group input[type="text"],
+        .control-group input[type="color"],
         .control-group select {
             width: 100%;
             padding: 8px 12px;
@@ -116,6 +237,11 @@
             background: #1a1a2e;
             color: #eee;
             font-size: 0.9rem;
+        }
+
+        .control-group input[type="color"] {
+            height: 42px;
+            padding: 4px;
         }
 
         .control-group input[type="range"] {
@@ -165,6 +291,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            text-decoration: none;
         }
 
         .btn:disabled {
@@ -405,8 +532,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>KiCad Image to Footprint Converter</h1>
-            <p class="subtitle">Convert images to KiCad silkscreen footprints with dithering</p>
+            <h1>i2cjak Tools</h1>
             <div class="social-links">
                 <a href="https://x.com/i2cjak" target="_blank" rel="noopener">
                     <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
@@ -419,6 +545,31 @@
             </div>
         </header>
 
+        <nav class="tabs" aria-label="Tool tabs">
+            <button class="tab-button active" type="button" data-tab="capacitor">Capacitor</button>
+            <button class="tab-button" type="button" data-tab="converter">KiCad Footprint</button>
+            <button class="tab-button" type="button" data-tab="opentowork">OPENTOWORK</button>
+        </nav>
+
+        <section class="tab-panel active" data-tab-panel="capacitor">
+            <div class="capacitor-shell">
+                <div class="capacitor-toolbar">
+                    <h2>Capacitor</h2>
+                    <div class="btn-group">
+                        <a class="btn btn-secondary" href="capacitor/?bg=black&face=1&eyeRot=-30&eyeScale=1.8&mouthScale=1.75" target="_blank" rel="noopener">Open Standalone</a>
+                        <a class="btn btn-secondary" href="capacitor/?obs=1&bg=transparent&face=1&controls=1&eyeRot=-30&eyeScale=1.8&mouthScale=1.75" target="_blank" rel="noopener">OBS Controls</a>
+                    </div>
+                </div>
+                <iframe
+                    class="capacitor-frame"
+                    src="capacitor/?bg=black&face=1&eyeRot=-30&eyeScale=1.8&mouthScale=1.75"
+                    title="i2cjak capacitor demo"
+                    allow="camera; microphone; autoplay; fullscreen; clipboard-write"
+                ></iframe>
+            </div>
+        </section>
+
+        <section class="tab-panel" data-tab-panel="converter" hidden>
         <div class="main-grid">
             <!-- Controls Panel -->
             <div class="panel">
@@ -568,6 +719,85 @@
             </div>
             <textarea class="output-textarea" id="output" readonly placeholder="Generated footprint will appear here..."></textarea>
         </div>
+        </section>
+
+        <section class="tab-panel" data-tab-panel="opentowork" hidden>
+            <div class="openwork-grid">
+                <div class="panel">
+                    <h2>OPENTOWORK Banner</h2>
+
+                    <div class="drop-zone" id="openworkDropZone">
+                        <p>Drop image here</p>
+                        <p class="hint">or click to select / Ctrl+V to paste</p>
+                    </div>
+                    <input type="file" id="openworkFileInput" class="hidden-input" accept="image/*">
+
+                    <div class="control-group">
+                        <label for="openworkText">Text</label>
+                        <input type="text" id="openworkText" value="#OPENTOWORK">
+                    </div>
+
+                    <div class="control-group">
+                        <label for="openworkTextColor">Text Color</label>
+                        <input type="color" id="openworkTextColor" value="#ffffff">
+                    </div>
+
+                    <div class="control-group">
+                        <label for="openworkBandColor">Banner Color</label>
+                        <input type="color" id="openworkBandColor" value="#4a7f35">
+                    </div>
+
+                    <div class="control-group">
+                        <label for="openworkTextSize">Text Size</label>
+                        <input type="range" id="openworkTextSize" min="36" max="128" step="1" value="78">
+                        <div class="value-display" id="openworkTextSizeValue">78 px</div>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="openworkBandWidth">Banner Width</label>
+                        <input type="range" id="openworkBandWidth" min="120" max="230" step="1" value="165">
+                        <div class="value-display" id="openworkBandWidthValue">165 px</div>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="openworkBandLength">Banner Length</label>
+                        <input type="range" id="openworkBandLength" min="150" max="220" step="1" value="196">
+                        <div class="value-display" id="openworkBandLengthValue">196 deg</div>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="openworkStartFade">Start Fade</label>
+                        <input type="range" id="openworkStartFade" min="0" max="45" step="1" value="18">
+                        <div class="value-display" id="openworkStartFadeValue">18 deg</div>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="openworkEndFade">End Fade</label>
+                        <input type="range" id="openworkEndFade" min="0" max="45" step="1" value="18">
+                        <div class="value-display" id="openworkEndFadeValue">18 deg</div>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="openworkFadeIntensity">Fade Intensity</label>
+                        <input type="range" id="openworkFadeIntensity" min="0.5" max="12" step="0.1" value="3">
+                        <div class="value-display" id="openworkFadeIntensityValue">3.0x</div>
+                    </div>
+
+                    <div class="btn-group openwork-actions">
+                        <button class="btn btn-primary" id="openworkDownloadBtn" type="button">Download PNG</button>
+                        <button class="btn btn-secondary" id="openworkClearBtn" type="button">Clear Image</button>
+                    </div>
+                </div>
+
+                <div class="panel openwork-preview-panel">
+                    <h2>Preview</h2>
+                    <div class="openwork-canvas-shell">
+                        <canvas id="openworkCanvas" width="1080" height="1080"></canvas>
+                    </div>
+                    <div class="openwork-status" id="openworkStatus">Paste or select an image.</div>
+                </div>
+            </div>
+        </section>
 
         <footer>
             <p>Made by <a href="https://x.com/i2cjak" target="_blank" rel="noopener">@i2cjak</a></p>
@@ -582,6 +812,441 @@
     </div>
 
     <script>
+        const tabButtons = [...document.querySelectorAll('[data-tab]')];
+        const tabPanels = [...document.querySelectorAll('[data-tab-panel]')];
+        let currentTab = 'capacitor';
+        let openworkReady = false;
+
+        function setActiveTab(tab) {
+            currentTab = tab;
+
+            tabButtons.forEach((button) => {
+                button.classList.toggle('active', button.dataset.tab === tab);
+            });
+
+            tabPanels.forEach((panel) => {
+                const active = panel.dataset.tabPanel === tab;
+                panel.hidden = !active;
+                panel.classList.toggle('active', active);
+            });
+
+            if (tab === 'opentowork' && openworkReady) {
+                requestAnimationFrame(renderOpenworkBanner);
+            }
+        }
+
+        const requestedTab = window.location.hash.replace('#', '');
+        const initialTab = tabButtons.some((button) => button.dataset.tab === requestedTab)
+            ? requestedTab
+            : 'capacitor';
+        setActiveTab(initialTab);
+
+        tabButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                const tab = button.dataset.tab;
+                setActiveTab(tab);
+
+                if (window.history?.replaceState) {
+                    const url = tab === 'capacitor'
+                        ? `${window.location.pathname}${window.location.search}`
+                        : `${window.location.pathname}${window.location.search}#${tab}`;
+                    window.history.replaceState(null, '', url);
+                }
+            });
+        });
+
+        const openworkCanvas = document.getElementById('openworkCanvas');
+        const openworkCtx = openworkCanvas.getContext('2d');
+        const openworkDropZone = document.getElementById('openworkDropZone');
+        const openworkFileInput = document.getElementById('openworkFileInput');
+        const openworkText = document.getElementById('openworkText');
+        const openworkTextColor = document.getElementById('openworkTextColor');
+        const openworkBandColor = document.getElementById('openworkBandColor');
+        const openworkTextSize = document.getElementById('openworkTextSize');
+        const openworkTextSizeValue = document.getElementById('openworkTextSizeValue');
+        const openworkBandWidth = document.getElementById('openworkBandWidth');
+        const openworkBandWidthValue = document.getElementById('openworkBandWidthValue');
+        const openworkBandLength = document.getElementById('openworkBandLength');
+        const openworkBandLengthValue = document.getElementById('openworkBandLengthValue');
+        const openworkStartFade = document.getElementById('openworkStartFade');
+        const openworkStartFadeValue = document.getElementById('openworkStartFadeValue');
+        const openworkEndFade = document.getElementById('openworkEndFade');
+        const openworkEndFadeValue = document.getElementById('openworkEndFadeValue');
+        const openworkFadeIntensity = document.getElementById('openworkFadeIntensity');
+        const openworkFadeIntensityValue = document.getElementById('openworkFadeIntensityValue');
+        const openworkStatus = document.getElementById('openworkStatus');
+        const openworkDownloadBtn = document.getElementById('openworkDownloadBtn');
+        const openworkClearBtn = document.getElementById('openworkClearBtn');
+        const openworkState = {
+            image: null,
+            fileName: ''
+        };
+
+        function degreesToRadians(degrees) {
+            return degrees * Math.PI / 180;
+        }
+
+        function clamp(value, min, max) {
+            return Math.min(Math.max(value, min), max);
+        }
+
+        function hexToRgb(hex) {
+            const value = hex.replace('#', '');
+            const normalized = value.length === 3
+                ? value.split('').map((part) => part + part).join('')
+                : value;
+
+            return {
+                r: parseInt(normalized.slice(0, 2), 16),
+                g: parseInt(normalized.slice(2, 4), 16),
+                b: parseInt(normalized.slice(4, 6), 16)
+            };
+        }
+
+        function mixRgb(color, target, amount) {
+            return {
+                r: Math.round(color.r + (target.r - color.r) * amount),
+                g: Math.round(color.g + (target.g - color.g) * amount),
+                b: Math.round(color.b + (target.b - color.b) * amount)
+            };
+        }
+
+        function rgbCss(color) {
+            return `rgb(${color.r}, ${color.g}, ${color.b})`;
+        }
+
+        function normalizeAngle(angle) {
+            const fullCircle = Math.PI * 2;
+            return ((angle % fullCircle) + fullCircle) % fullCircle;
+        }
+
+        function drawOpenworkPlaceholder(ctx, size) {
+            ctx.fillStyle = '#030506';
+            ctx.fillRect(0, 0, size, size);
+
+            ctx.save();
+            ctx.globalAlpha = 0.9;
+            ctx.strokeStyle = 'rgba(0, 212, 255, 0.07)';
+            ctx.lineWidth = 2;
+            const grid = size / 18;
+            for (let position = 0; position <= size; position += grid) {
+                ctx.beginPath();
+                ctx.moveTo(position, 0);
+                ctx.lineTo(position, size);
+                ctx.moveTo(0, position);
+                ctx.lineTo(size, position);
+                ctx.stroke();
+            }
+
+            ctx.fillStyle = 'rgba(0, 212, 255, 0.08)';
+            ctx.beginPath();
+            ctx.arc(size / 2, size / 2, size * 0.24, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function drawCoverImage(ctx, image, size) {
+            const scale = Math.max(size / image.width, size / image.height);
+            const width = image.width * scale;
+            const height = image.height * scale;
+            const x = (size - width) / 2;
+            const y = (size - height) / 2;
+            ctx.drawImage(image, x, y, width, height);
+        }
+
+        function traceOpenworkBand(ctx, cx, cy, outerRadius, innerRadius, startAngle, endAngle) {
+            ctx.beginPath();
+            ctx.arc(cx, cy, outerRadius, startAngle, endAngle, true);
+            ctx.arc(cx, cy, innerRadius, endAngle, startAngle, false);
+            ctx.closePath();
+        }
+
+        function fadeOpenworkBandEnds(canvas, innerRadius, outerRadius, startAngle, endAngle, startFadeDegrees, endFadeDegrees, fadeIntensity) {
+            const ctx = canvas.getContext('2d');
+            const size = canvas.width;
+            const cx = size / 2;
+            const cy = size / 2;
+            const startFadeAngle = degreesToRadians(startFadeDegrees);
+            const endFadeAngle = degreesToRadians(endFadeDegrees);
+            const imageData = ctx.getImageData(0, 0, size, size);
+            const data = imageData.data;
+            const totalArc = normalizeAngle(startAngle - endAngle);
+
+            for (let y = 0; y < size; y++) {
+                for (let x = 0; x < size; x++) {
+                    const index = (y * size + x) * 4 + 3;
+                    if (data[index] === 0) continue;
+
+                    const dx = x + 0.5 - cx;
+                    const dy = y + 0.5 - cy;
+                    const radius = Math.hypot(dx, dy);
+                    if (radius < innerRadius || radius > outerRadius) {
+                        data[index] = 0;
+                        continue;
+                    }
+
+                    const angle = normalizeAngle(Math.atan2(dy, dx));
+                    const arcPosition = normalizeAngle(startAngle - angle);
+                    const insideArc = arcPosition <= totalArc;
+                    const distanceFromStart = insideArc ? arcPosition : 0;
+                    const distanceFromEnd = insideArc ? totalArc - arcPosition : 0;
+                    const startScale = startFadeAngle === 0 ? 1 : clamp(distanceFromStart / startFadeAngle, 0, 1);
+                    const endScale = endFadeAngle === 0 ? 1 : clamp(distanceFromEnd / endFadeAngle, 0, 1);
+                    const linearScale = insideArc ? Math.min(startScale, endScale) : 0;
+                    const alphaScale = Math.pow(linearScale, fadeIntensity);
+                    data[index] = alphaScale < 0.003 ? 0 : Math.round(data[index] * alphaScale);
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        function drawOpenworkBand(ctx, size, bandColor, bandWidth, bandLengthDegrees, startFadeDegrees, endFadeDegrees, fadeIntensity) {
+            const cx = size / 2;
+            const cy = size / 2;
+            const outerRadius = size * 0.5;
+            const innerRadius = outerRadius - bandWidth;
+            const midpointAngle = degreesToRadians(121);
+            const halfLength = degreesToRadians(bandLengthDegrees / 2);
+            const startAngle = midpointAngle + halfLength;
+            const endAngle = midpointAngle - halfLength;
+            const base = hexToRgb(bandColor);
+            const dark = mixRgb(base, { r: 0, g: 0, b: 0 }, 0.24);
+            const light = mixRgb(base, { r: 255, g: 255, b: 255 }, 0.18);
+            const gradient = ctx.createLinearGradient(size * 0.12, size * 0.9, size * 0.92, size * 0.35);
+
+            gradient.addColorStop(0, rgbCss(dark));
+            gradient.addColorStop(0.56, rgbCss(base));
+            gradient.addColorStop(1, rgbCss(light));
+
+            const bandCanvas = document.createElement('canvas');
+            bandCanvas.width = size;
+            bandCanvas.height = size;
+            const bandCtx = bandCanvas.getContext('2d');
+
+            traceOpenworkBand(bandCtx, cx, cy, outerRadius, innerRadius, startAngle, endAngle);
+            bandCtx.fillStyle = gradient;
+            bandCtx.fill();
+
+            fadeOpenworkBandEnds(
+                bandCanvas,
+                innerRadius,
+                outerRadius,
+                startAngle,
+                endAngle,
+                startFadeDegrees,
+                endFadeDegrees,
+                fadeIntensity
+            );
+            ctx.drawImage(bandCanvas, 0, 0);
+
+            return { outerRadius, innerRadius };
+        }
+
+        function measureOpenworkText(ctx, glyphs, fontSize) {
+            const spacing = fontSize * 0.075;
+            ctx.font = `700 ${fontSize}px Carlito, Arial, sans-serif`;
+            const widths = glyphs.map((glyph) => ctx.measureText(glyph).width);
+            const textWidth = widths.reduce((total, width) => total + width, 0);
+            const totalWidth = textWidth + spacing * Math.max(0, glyphs.length - 1);
+            return { widths, spacing, totalWidth };
+        }
+
+        function drawOpenworkText(ctx, size, innerRadius, outerRadius, text, color, requestedFontSize) {
+            const cx = size / 2;
+            const cy = size / 2;
+            const glyphs = [...text];
+            const radius = innerRadius + (outerRadius - innerRadius) * 0.52;
+            const pathStart = degreesToRadians(177);
+            const pathEnd = degreesToRadians(55);
+            const availableWidth = radius * (pathStart - pathEnd) * 0.94;
+            let fontSize = requestedFontSize;
+            let metrics = measureOpenworkText(ctx, glyphs, fontSize);
+
+            if (metrics.totalWidth > availableWidth) {
+                fontSize = clamp(Math.floor(fontSize * availableWidth / metrics.totalWidth * 0.98), 24, requestedFontSize);
+                metrics = measureOpenworkText(ctx, glyphs, fontSize);
+            }
+
+            const totalAngle = metrics.totalWidth / radius;
+            const midAngle = degreesToRadians(116);
+            let angle = midAngle + totalAngle / 2;
+
+            ctx.save();
+            ctx.font = `700 ${fontSize}px Carlito, Arial, sans-serif`;
+            ctx.fillStyle = color;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.28)';
+            ctx.shadowBlur = 2;
+            ctx.shadowOffsetY = 2;
+
+            glyphs.forEach((glyph, index) => {
+                const halfAdvance = metrics.widths[index] / 2 / radius;
+                angle -= halfAdvance;
+
+                const x = cx + Math.cos(angle) * radius;
+                const y = cy + Math.sin(angle) * radius;
+
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(angle - Math.PI / 2);
+                ctx.fillText(glyph, 0, 0);
+                ctx.restore();
+
+                angle -= halfAdvance + metrics.spacing / radius;
+            });
+
+            ctx.restore();
+            return fontSize;
+        }
+
+        function renderOpenworkBanner() {
+            const size = 1080;
+            const text = openworkText.value.trim() || '#OPENTOWORK';
+            const bandWidth = clamp(parseInt(openworkBandWidth.value, 10), 120, 230);
+            const bandLengthDegrees = clamp(parseInt(openworkBandLength.value, 10), 150, 220);
+            const startFadeDegrees = clamp(parseInt(openworkStartFade.value, 10), 0, 45);
+            const endFadeDegrees = clamp(parseInt(openworkEndFade.value, 10), 0, 45);
+            const fadeIntensity = clamp(parseFloat(openworkFadeIntensity.value), 0.5, 4);
+            const requestedFontSize = clamp(parseInt(openworkTextSize.value, 10), 36, 128);
+
+            openworkCanvas.width = size;
+            openworkCanvas.height = size;
+            openworkCtx.clearRect(0, 0, size, size);
+
+            if (openworkState.image) {
+                drawCoverImage(openworkCtx, openworkState.image, size);
+            } else {
+                drawOpenworkPlaceholder(openworkCtx, size);
+            }
+
+            const radii = drawOpenworkBand(
+                openworkCtx,
+                size,
+                openworkBandColor.value,
+                bandWidth,
+                bandLengthDegrees,
+                startFadeDegrees,
+                endFadeDegrees,
+                fadeIntensity
+            );
+            const renderedFontSize = drawOpenworkText(
+                openworkCtx,
+                size,
+                radii.innerRadius,
+                radii.outerRadius,
+                text,
+                openworkTextColor.value,
+                requestedFontSize
+            );
+
+            const renderedLabel = renderedFontSize < requestedFontSize
+                ? `auto ${Math.round(renderedFontSize)} px`
+                : `${Math.round(renderedFontSize)} px`;
+            openworkStatus.textContent = openworkState.image
+                ? `${openworkState.fileName} - text ${renderedLabel}`
+                : `Default preview - text ${renderedLabel}`;
+        }
+
+        function loadOpenworkFile(file) {
+            if (!file || !file.type.startsWith('image/')) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const image = new Image();
+                image.onload = () => {
+                    openworkState.image = image;
+                    openworkState.fileName = file.name || 'Pasted image';
+                    renderOpenworkBanner();
+                };
+                image.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function downloadOpenworkPng() {
+            openworkCanvas.toBlob((blob) => {
+                if (!blob) return;
+
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'opentowork-banner.png';
+                link.click();
+                setTimeout(() => URL.revokeObjectURL(link.href), 0);
+            }, 'image/png');
+        }
+
+        openworkDropZone.addEventListener('click', () => openworkFileInput.click());
+
+        openworkDropZone.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            openworkDropZone.classList.add('dragover');
+        });
+
+        openworkDropZone.addEventListener('dragleave', () => openworkDropZone.classList.remove('dragover'));
+
+        openworkDropZone.addEventListener('drop', (event) => {
+            event.preventDefault();
+            openworkDropZone.classList.remove('dragover');
+            const file = event.dataTransfer.files[0];
+            loadOpenworkFile(file);
+        });
+
+        openworkFileInput.addEventListener('change', (event) => {
+            loadOpenworkFile(event.target.files[0]);
+            event.target.value = '';
+        });
+
+        openworkText.addEventListener('input', renderOpenworkBanner);
+        openworkTextColor.addEventListener('input', renderOpenworkBanner);
+        openworkBandColor.addEventListener('input', renderOpenworkBanner);
+
+        openworkTextSize.addEventListener('input', () => {
+            openworkTextSizeValue.textContent = `${openworkTextSize.value} px`;
+            renderOpenworkBanner();
+        });
+
+        openworkBandWidth.addEventListener('input', () => {
+            openworkBandWidthValue.textContent = `${openworkBandWidth.value} px`;
+            renderOpenworkBanner();
+        });
+
+        openworkBandLength.addEventListener('input', () => {
+            openworkBandLengthValue.textContent = `${openworkBandLength.value} deg`;
+            renderOpenworkBanner();
+        });
+
+        openworkStartFade.addEventListener('input', () => {
+            openworkStartFadeValue.textContent = `${openworkStartFade.value} deg`;
+            renderOpenworkBanner();
+        });
+
+        openworkEndFade.addEventListener('input', () => {
+            openworkEndFadeValue.textContent = `${openworkEndFade.value} deg`;
+            renderOpenworkBanner();
+        });
+
+        openworkFadeIntensity.addEventListener('input', () => {
+            openworkFadeIntensityValue.textContent = `${parseFloat(openworkFadeIntensity.value).toFixed(1)}x`;
+            renderOpenworkBanner();
+        });
+
+        openworkDownloadBtn.addEventListener('click', downloadOpenworkPng);
+
+        openworkClearBtn.addEventListener('click', () => {
+            openworkState.image = null;
+            openworkState.fileName = '';
+            renderOpenworkBanner();
+        });
+
+        openworkReady = true;
+        renderOpenworkBanner();
+
+        if (document.fonts?.ready) {
+            document.fonts.ready.then(renderOpenworkBanner);
+        }
+
         // Initialize Web Worker
         let worker = null;
         let workerSupported = typeof Worker !== 'undefined';
@@ -1032,11 +1697,14 @@
         });
 
         document.addEventListener('paste', (e) => {
-            for (const item of e.clipboardData.items) {
-                if (item.type.startsWith('image/')) {
-                    loadImage(item.getAsFile());
-                    break;
-                }
+            const imageItem = [...e.clipboardData.items].find((item) => item.type.startsWith('image/'));
+            if (!imageItem) return;
+
+            e.preventDefault();
+            if (currentTab === 'opentowork') {
+                loadOpenworkFile(imageItem.getAsFile());
+            } else if (currentTab === 'converter') {
+                loadImage(imageItem.getAsFile());
             }
         });
 

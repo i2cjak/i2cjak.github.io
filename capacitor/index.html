@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Capacitor Demo</title>
+    <script type="module" crossorigin src="./assets/index-B1VdBZkN.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-CzLwuCRb.css">
+  </head>
+  <body>
+    <main id="stage">
+      <canvas id="scene"></canvas>
+      <video id="camera-feed" playsinline muted autoplay></video>
+      <section id="controls" aria-label="Capacitor controls">
+        <div class="brand">
+          <span>CAPACITOR</span>
+          <span id="status">loading</span>
+        </div>
+        <div class="row segmented" aria-label="capture state">
+          <button type="button" class="preset active" data-morph="0">cap1</button>
+          <button type="button" class="preset" data-morph="1">cap2</button>
+        </div>
+        <label>
+          <span>morph</span>
+          <input id="morph" type="range" min="0" max="1" value="0" step="0.001" />
+        </label>
+        <label>
+          <span>yaw</span>
+          <input id="yaw" type="range" min="-70" max="70" value="0" step="1" />
+        </label>
+        <label>
+          <span>pitch</span>
+          <input id="pitch" type="range" min="-35" max="35" value="0" step="1" />
+        </label>
+        <div class="row switches">
+          <label class="switch">
+            <input id="idle" type="checkbox" checked />
+            <span>idle</span>
+          </label>
+          <label class="switch">
+            <input id="face-toggle" type="checkbox" />
+            <span>face</span>
+          </label>
+          <label class="switch">
+            <input id="preview-toggle" type="checkbox" />
+            <span>preview</span>
+          </label>
+          <label class="switch">
+            <input id="wire" type="checkbox" />
+            <span>wire</span>
+          </label>
+          <label class="switch">
+            <input id="head-mesh" type="checkbox" />
+            <span>mesh</span>
+          </label>
+        </div>
+        <label>
+          <span>face y</span>
+          <input id="face-y" type="range" min="-10" max="10" value="0" step="0.1" />
+        </label>
+        <label>
+          <span>face size</span>
+          <input id="face-size" type="range" min="0.65" max="1.6" value="1" step="0.01" />
+        </label>
+        <label>
+          <span>edge blur</span>
+          <input id="edge-blur" type="range" min="0" max="36" value="14" step="1" />
+        </label>
+        <label>
+          <span>char</span>
+          <input id="burn-edge" type="range" min="0" max="1.4" value="0.75" step="0.01" />
+        </label>
+        <div class="tweak-section">
+          <div class="subhead">eyes</div>
+          <label>
+            <span>depth</span>
+            <input id="eye-x" type="range" min="-3" max="3" value="0" step="0.05" />
+          </label>
+          <label>
+            <span>y</span>
+            <input id="eye-y" type="range" min="-8" max="8" value="0" step="0.05" />
+          </label>
+          <label>
+            <span>spread</span>
+            <input id="eye-spread" type="range" min="-4" max="4" value="0" step="0.05" />
+          </label>
+          <label>
+            <span>rot</span>
+            <input id="eye-rot" type="range" min="-60" max="60" value="45" step="1" />
+          </label>
+          <label>
+            <span>size</span>
+            <input id="eye-scale" type="range" min="0.1" max="6" value="1" step="0.01" />
+          </label>
+        </div>
+        <div class="tweak-section">
+          <div class="subhead">mouth</div>
+          <label>
+            <span>depth</span>
+            <input id="mouth-x" type="range" min="-3" max="3" value="0" step="0.05" />
+          </label>
+          <label>
+            <span>y</span>
+            <input id="mouth-y" type="range" min="-8" max="8" value="0" step="0.05" />
+          </label>
+          <label>
+            <span>side</span>
+            <input id="mouth-z" type="range" min="-5" max="5" value="0" step="0.05" />
+          </label>
+          <label>
+            <span>rot</span>
+            <input id="mouth-rot" type="range" min="-60" max="60" value="0" step="1" />
+          </label>
+          <label>
+            <span>size</span>
+            <input id="mouth-scale" type="range" min="0.1" max="6" value="1" step="0.01" />
+          </label>
+        </div>
+        <label>
+          <span>bg</span>
+          <select id="background">
+            <option value="grid">grid</option>
+            <option value="transparent">transparent</option>
+            <option value="green">green</option>
+            <option value="black">black</option>
+          </select>
+        </label>
+      </section>
+    </main>
+  </body>
+</html>
