@@ -141,6 +141,24 @@
             margin-top: 20px;
         }
 
+        .openwork-presets {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .openwork-presets .btn {
+            justify-content: center;
+            min-width: 0;
+            padding-inline: 8px;
+        }
+
+        .openwork-presets .btn.active {
+            background: #00d4ff;
+            color: #1a1a2e;
+        }
+
         .capacitor-shell {
             background: #050608;
             border: 1px solid #0f3460;
@@ -548,7 +566,7 @@
         <nav class="tabs" aria-label="Tool tabs">
             <button class="tab-button active" type="button" data-tab="capacitor">Capacitor</button>
             <button class="tab-button" type="button" data-tab="converter">KiCad Footprint</button>
-            <button class="tab-button" type="button" data-tab="opentowork">OPENTOWORK</button>
+            <button class="tab-button" type="button" data-tab="opentowork">LinkedIn Banner</button>
         </nav>
 
         <section class="tab-panel active" data-tab-panel="capacitor">
@@ -724,7 +742,13 @@
         <section class="tab-panel" data-tab-panel="opentowork" hidden>
             <div class="openwork-grid">
                 <div class="panel">
-                    <h2>OPENTOWORK Banner</h2>
+                    <h2>LinkedIn Banner</h2>
+
+                    <div class="openwork-presets" aria-label="Banner presets">
+                        <button class="btn btn-secondary active" type="button" data-openwork-preset="opentosauce" aria-pressed="true">OPENTOSAUCE</button>
+                        <button class="btn btn-secondary" type="button" data-openwork-preset="opentowork" aria-pressed="false">OPENTOWORK</button>
+                        <button class="btn btn-secondary" type="button" data-openwork-preset="hiring" aria-pressed="false">HIRING</button>
+                    </div>
 
                     <div class="drop-zone" id="openworkDropZone">
                         <p>Drop image here</p>
@@ -734,7 +758,7 @@
 
                     <div class="control-group">
                         <label for="openworkText">Text</label>
-                        <input type="text" id="openworkText" value="#OPENTOWORK">
+                        <input type="text" id="openworkText" value="#OPENTOSAUCE">
                     </div>
 
                     <div class="control-group">
@@ -744,13 +768,13 @@
 
                     <div class="control-group">
                         <label for="openworkBandColor">Banner Color</label>
-                        <input type="color" id="openworkBandColor" value="#4a7f35">
+                        <input type="color" id="openworkBandColor" value="#eb9838">
                     </div>
 
                     <div class="control-group">
                         <label for="openworkTextSize">Text Size</label>
-                        <input type="range" id="openworkTextSize" min="36" max="128" step="1" value="78">
-                        <div class="value-display" id="openworkTextSizeValue">78 px</div>
+                        <input type="range" id="openworkTextSize" min="36" max="128" step="1" value="128">
+                        <div class="value-display" id="openworkTextSizeValue">128 px</div>
                     </div>
 
                     <div class="control-group">
@@ -761,26 +785,26 @@
 
                     <div class="control-group">
                         <label for="openworkBandLength">Banner Length</label>
-                        <input type="range" id="openworkBandLength" min="150" max="220" step="1" value="196">
-                        <div class="value-display" id="openworkBandLengthValue">196 deg</div>
+                        <input type="range" id="openworkBandLength" min="150" max="220" step="1" value="197">
+                        <div class="value-display" id="openworkBandLengthValue">197 deg</div>
                     </div>
 
                     <div class="control-group">
                         <label for="openworkStartFade">Start Fade</label>
-                        <input type="range" id="openworkStartFade" min="0" max="45" step="1" value="18">
-                        <div class="value-display" id="openworkStartFadeValue">18 deg</div>
+                        <input type="range" id="openworkStartFade" min="0" max="45" step="1" value="39">
+                        <div class="value-display" id="openworkStartFadeValue">39 deg</div>
                     </div>
 
                     <div class="control-group">
                         <label for="openworkEndFade">End Fade</label>
-                        <input type="range" id="openworkEndFade" min="0" max="45" step="1" value="18">
-                        <div class="value-display" id="openworkEndFadeValue">18 deg</div>
+                        <input type="range" id="openworkEndFade" min="0" max="45" step="1" value="29">
+                        <div class="value-display" id="openworkEndFadeValue">29 deg</div>
                     </div>
 
                     <div class="control-group">
                         <label for="openworkFadeIntensity">Fade Intensity</label>
-                        <input type="range" id="openworkFadeIntensity" min="0.5" max="12" step="0.1" value="3">
-                        <div class="value-display" id="openworkFadeIntensityValue">3.0x</div>
+                        <input type="range" id="openworkFadeIntensity" min="0.5" max="12" step="0.1" value="4">
+                        <div class="value-display" id="openworkFadeIntensityValue">4.0x</div>
                     </div>
 
                     <div class="btn-group openwork-actions">
@@ -877,10 +901,88 @@
         const openworkStatus = document.getElementById('openworkStatus');
         const openworkDownloadBtn = document.getElementById('openworkDownloadBtn');
         const openworkClearBtn = document.getElementById('openworkClearBtn');
+        const openworkPresetButtons = [...document.querySelectorAll('[data-openwork-preset]')];
+        const openworkPresets = {
+            opentosauce: {
+                text: '#OPENTOSAUCE',
+                textColor: '#ffffff',
+                bandColor: '#eb9838',
+                textSize: 128,
+                bandWidth: 165,
+                bandLength: 197,
+                startFade: 39,
+                endFade: 29,
+                fadeIntensity: 4
+            },
+            opentowork: {
+                text: '#OPENTOWORK',
+                textColor: '#ffffff',
+                bandColor: '#4a7f35',
+                textSize: 78,
+                bandWidth: 165,
+                bandLength: 196,
+                startFade: 18,
+                endFade: 18,
+                fadeIntensity: 3
+            },
+            hiring: {
+                text: '#HIRING',
+                textColor: '#ffffff',
+                bandColor: '#a4478d',
+                textSize: 96,
+                bandWidth: 165,
+                bandLength: 196,
+                startFade: 18,
+                endFade: 18,
+                fadeIntensity: 3
+            }
+        };
         const openworkState = {
             image: null,
-            fileName: ''
+            fileName: '',
+            preset: 'opentosauce'
         };
+
+        function updateOpenworkValueDisplays() {
+            openworkTextSizeValue.textContent = `${openworkTextSize.value} px`;
+            openworkBandWidthValue.textContent = `${openworkBandWidth.value} px`;
+            openworkBandLengthValue.textContent = `${openworkBandLength.value} deg`;
+            openworkStartFadeValue.textContent = `${openworkStartFade.value} deg`;
+            openworkEndFadeValue.textContent = `${openworkEndFade.value} deg`;
+            openworkFadeIntensityValue.textContent = `${parseFloat(openworkFadeIntensity.value).toFixed(1)}x`;
+        }
+
+        function updateOpenworkPresetSelection(presetName) {
+            openworkState.preset = presetName;
+            openworkPresetButtons.forEach((button) => {
+                const selected = button.dataset.openworkPreset === presetName;
+                button.classList.toggle('active', selected);
+                button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+            });
+        }
+
+        function applyOpenworkPreset(presetName) {
+            const preset = openworkPresets[presetName];
+            if (!preset) return;
+
+            openworkText.value = preset.text;
+            openworkTextColor.value = preset.textColor;
+            openworkBandColor.value = preset.bandColor;
+            openworkTextSize.value = preset.textSize;
+            openworkBandWidth.value = preset.bandWidth;
+            openworkBandLength.value = preset.bandLength;
+            openworkStartFade.value = preset.startFade;
+            openworkEndFade.value = preset.endFade;
+            openworkFadeIntensity.value = preset.fadeIntensity;
+            updateOpenworkValueDisplays();
+            updateOpenworkPresetSelection(presetName);
+            renderOpenworkBanner();
+        }
+
+        function renderCustomOpenworkBanner() {
+            updateOpenworkPresetSelection(null);
+            renderOpenworkBanner();
+        }
 
         function degreesToRadians(degrees) {
             return degrees * Math.PI / 180;
@@ -1103,7 +1205,7 @@
 
         function renderOpenworkBanner() {
             const size = 1080;
-            const text = openworkText.value.trim() || '#OPENTOWORK';
+            const text = openworkText.value.trim() || '#OPENTOSAUCE';
             const bandWidth = clamp(parseInt(openworkBandWidth.value, 10), 120, 230);
             const bandLengthDegrees = clamp(parseInt(openworkBandLength.value, 10), 150, 220);
             const startFadeDegrees = clamp(parseInt(openworkStartFade.value, 10), 0, 45);
@@ -1171,7 +1273,7 @@
 
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = 'opentowork-banner.png';
+                link.download = 'linkedin-banner.png';
                 link.click();
                 setTimeout(() => URL.revokeObjectURL(link.href), 0);
             }, 'image/png');
@@ -1198,38 +1300,42 @@
             event.target.value = '';
         });
 
-        openworkText.addEventListener('input', renderOpenworkBanner);
-        openworkTextColor.addEventListener('input', renderOpenworkBanner);
-        openworkBandColor.addEventListener('input', renderOpenworkBanner);
+        openworkPresetButtons.forEach((button) => {
+            button.addEventListener('click', () => applyOpenworkPreset(button.dataset.openworkPreset));
+        });
+
+        openworkText.addEventListener('input', renderCustomOpenworkBanner);
+        openworkTextColor.addEventListener('input', renderCustomOpenworkBanner);
+        openworkBandColor.addEventListener('input', renderCustomOpenworkBanner);
 
         openworkTextSize.addEventListener('input', () => {
             openworkTextSizeValue.textContent = `${openworkTextSize.value} px`;
-            renderOpenworkBanner();
+            renderCustomOpenworkBanner();
         });
 
         openworkBandWidth.addEventListener('input', () => {
             openworkBandWidthValue.textContent = `${openworkBandWidth.value} px`;
-            renderOpenworkBanner();
+            renderCustomOpenworkBanner();
         });
 
         openworkBandLength.addEventListener('input', () => {
             openworkBandLengthValue.textContent = `${openworkBandLength.value} deg`;
-            renderOpenworkBanner();
+            renderCustomOpenworkBanner();
         });
 
         openworkStartFade.addEventListener('input', () => {
             openworkStartFadeValue.textContent = `${openworkStartFade.value} deg`;
-            renderOpenworkBanner();
+            renderCustomOpenworkBanner();
         });
 
         openworkEndFade.addEventListener('input', () => {
             openworkEndFadeValue.textContent = `${openworkEndFade.value} deg`;
-            renderOpenworkBanner();
+            renderCustomOpenworkBanner();
         });
 
         openworkFadeIntensity.addEventListener('input', () => {
             openworkFadeIntensityValue.textContent = `${parseFloat(openworkFadeIntensity.value).toFixed(1)}x`;
-            renderOpenworkBanner();
+            renderCustomOpenworkBanner();
         });
 
         openworkDownloadBtn.addEventListener('click', downloadOpenworkPng);
@@ -1241,7 +1347,7 @@
         });
 
         openworkReady = true;
-        renderOpenworkBanner();
+        applyOpenworkPreset('opentosauce');
 
         if (document.fonts?.ready) {
             document.fonts.ready.then(renderOpenworkBanner);
